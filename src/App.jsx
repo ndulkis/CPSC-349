@@ -1,51 +1,16 @@
 import { useState, useEffect, useRef } from 'react';
-
-const API_KEY  = import.meta.env.VITE_TMDB_API_KEY;
-const BASE_URL = 'https://api.themoviedb.org/3';
-const IMG_BASE = 'https://image.tmdb.org/t/p/w342';
-const MAX_PAGES = 500;
-
-function MovieCard({ movie }) {
-  const rating  = movie.vote_average != null ? movie.vote_average.toFixed(3) : 'N/A';
-  const dateStr = movie.release_date || 'Unknown';
-
-  return (
-    <article className="movie-card" role="listitem">
-      <div className="movie-poster-wrap">
-        {movie.poster_path ? (
-          <img
-            className="movie-poster"
-            src={`${IMG_BASE}${movie.poster_path}`}
-            alt={movie.title || 'Untitled'}
-            loading="lazy"
-          />
-        ) : (
-          <div className="poster-placeholder">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1">
-              <rect x="2" y="2" width="20" height="20" rx="2" />
-              <circle cx="8.5" cy="8.5" r="1.5" />
-              <polyline points="21 15 16 10 5 21" />
-            </svg>
-            <span>No Image</span>
-          </div>
-        )}
-      </div>
-      <div className="movie-info">
-        <h2 className="movie-title">{movie.title || 'Untitled'}</h2>
-        <p className="movie-date">Release Date: {dateStr}</p>
-        <p className="movie-rating">Rating: {rating}</p>
-      </div>
-    </article>
-  );
-}
+import { API_KEY, BASE_URL, MAX_PAGES } from './constants';
+import Header from './components/Header';
+import MovieGrid from './components/MovieGrid';
+import Pagination from './components/Pagination';
 
 function App() {
-  const [movies, setMovies]       = useState([]);
-  const [loading, setLoading]     = useState(true);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages]   = useState(1);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [sortBy, setSortBy]           = useState('default');
+  const [movies, setMovies]               = useState([]);
+  const [loading, setLoading]             = useState(true);
+  const [currentPage, setCurrentPage]     = useState(1);
+  const [totalPages, setTotalPages]       = useState(1);
+  const [searchQuery, setSearchQuery]     = useState('');
+  const [sortBy, setSortBy]               = useState('default');
 
   const debounceRef = useRef(null);
 
@@ -113,68 +78,20 @@ function App() {
 
   return (
     <>
-      <header className="site-header">
-        <h1 className="site-title">Movie Explorer</h1>
-        <div className="controls">
-          <input
-            type="text"
-            className="search-input"
-            placeholder="Search for a movie..."
-            autoComplete="off"
-            aria-label="Search movies"
-            onChange={handleSearchChange}
-          />
-          <select
-            className="sort-select"
-            aria-label="Sort movies by"
-            value={sortBy}
-            onChange={handleSortChange}
-          >
-            <option value="default">Sort By</option>
-            <option value="release_date">Release Date</option>
-            <option value="vote_average">Average Rating</option>
-          </select>
-        </div>
-      </header>
-
+      <Header
+        sortBy={sortBy}
+        onSearchChange={handleSearchChange}
+        onSortChange={handleSortChange}
+      />
       <main className="main-content">
-        {loading ? (
-          <div className="loading-state" aria-live="polite">
-            <div className="spinner"></div>
-            <p>Loading...</p>
-          </div>
-        ) : (
-          <div className="movie-grid" role="list">
-            {movies.length === 0 ? (
-              <div className="empty-state">
-                <p>No films found.</p>
-              </div>
-            ) : (
-              movies.map(movie => <MovieCard key={movie.id} movie={movie} />)
-            )}
-          </div>
-        )}
+        <MovieGrid movies={movies} loading={loading} />
       </main>
-
-      <footer className="pagination">
-        <button
-          className="page-btn"
-          disabled={currentPage <= 1}
-          aria-label="Previous page"
-          onClick={handlePrev}
-        >
-          Previous
-        </button>
-        <span className="page-number">Page {currentPage}</span>
-        <button
-          className="page-btn"
-          disabled={currentPage >= totalPages}
-          aria-label="Next page"
-          onClick={handleNext}
-        >
-          Next
-        </button>
-      </footer>
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPrev={handlePrev}
+        onNext={handleNext}
+      />
     </>
   );
 }
