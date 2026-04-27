@@ -70,8 +70,11 @@ npm run lint
 ```
 CPSC-349/
 ├── src/
+│   ├── componets/
+│   ├── assets/
 │   ├── App.jsx          # Main application component
 │   ├── App.css          # Application styles
+│   ├── constants.js     # Constants
 │   ├── index.css        # Global styles
 │   └── main.jsx         # Entry point
 ├── public/              # Static assets
